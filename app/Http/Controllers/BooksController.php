@@ -41,9 +41,9 @@ class BooksController extends Controller
 
     public function update(Request $request, Book $book)
     {
-        // check if authenticated user is the owner of $book;
+        // check if authenticated user is the owner of the book
         if ($request->user()->id !== $book->user_id) {
-            return response()->json(['error' => 'You can only edit your own books'], 403);
+            return response()->json(['error' => 'You can only edit your own books.'], 403);
         }
 
         $book->update($request->only(['title', 'description']));
@@ -51,7 +51,7 @@ class BooksController extends Controller
         return new BookResource($book);
     }
 
-    public function destroy(Book $book)
+    public function destroy(Request $request, Book $book)
     {
         if ($request->user()->id !== $book->user_id) {
             return response()->json(['error' => 'You can only delete your own books'], 403);
