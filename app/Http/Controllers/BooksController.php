@@ -3,15 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Book;
-use App\Http\Resources\BooksResource;
+use App\Http\Resources\BookResource;
 use Illuminate\Http\Request;
 
 class BooksController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:api')->except(['index', 'show']);
+    }
 
     public function index()
     {
-        return BooksResource::collection(Book::with('ratings')->paginate(25));
+        return BookResource::collection(Book::with('ratings')->paginate(25));
     }
 
     public function store(Request $request)
@@ -21,13 +25,13 @@ class BooksController extends Controller
             'description' => 'required',
         ]);
 
-        Book::create([
+        $book = Book::create([
             'user_id' => $request->user()->id,
             'title' => $request->title,
             'description' => $request->description,
         ]);
 
-        return new BookResource($request);
+        return new BookResource($book);
     }
 
     public function show(Book $book)
@@ -37,6 +41,7 @@ class BooksController extends Controller
 
     public function update(Request $request, Book $book)
     {
+        // check if authenticated user is the owner of $book;
         if ($request->user()->id !== $book->user_id) {
             return response()->json(['error' => 'You can only edit your own books'], 403);
         }
