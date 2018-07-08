@@ -19,5 +19,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::post('register', 'AuthController@register');
 Route::post('login', 'AuthController@login');
+Route::post('refresh-token', 'AuthController@refreshToken');
 Route::apiResource('books', 'BooksController');
 Route::post('books/{book}/ratings', 'RatingsController@store');

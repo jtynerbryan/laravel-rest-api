@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:api')->only(['refreshToken']);
+    }
+
     public function register(Request $request)
     {
         $validateData = $request->validate([
@@ -43,6 +48,22 @@ class AuthController extends Controller
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 60,
+        ]);
+    }
+
+    protected function refreshToken(Request $request)
+    {
+        $payload = auth()->payload();
+
+        $expirationDate = strtotime(date('d M Y h:i', $payload->get('exp')));
+
+        $timeNow = strtotime(date('d M Y h:i'));
+
+        $expires_in = $expirationDate - $timeNow;
+
+        return response()->json([
+            'expires_in' => $expires_in,
+
         ]);
     }
 }
